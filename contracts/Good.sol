@@ -10,7 +10,7 @@ contract Good {
     }
 
     function setOwner(address _newOnwer) public {
-        if (msg.sender != owner) 
+        if (tx.origin != owner) 
         revert NotOwner();
         owner = _newOnwer;
     }
