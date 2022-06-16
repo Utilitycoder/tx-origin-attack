@@ -1,19 +1,33 @@
-import { expect } from ("chai");
-import { ethers } from ("hardhat");
+const { expect } = require("chai");
+const { ethers, waffle } = require("hardhat");
+const { BigNumber } = require("ethers")
 
-describe("Greeter", function () {
-  it("Should return the new greeting once it's changed", async function () {
-    const Greeter = await ethers.getContractFactory("Greeter");
-    const greeter = await Greeter.deploy("Hello, world!");
-    await greeter.deployed();
+describe("Test Attack", async () => {
+  it("Should change the owner of good contract", async () => {
+    // Get one Address
+    const [_, addr1] = await ethers.getSigners()
 
-    expect(await greeter.greet()).to.equal("Hello, world!");
+    // Deploy Good contract
+    const Good = await ethers.getContractFactory("Good")
+    const good = await Good.connect(addr1).deploy()
+    await good.deployed()
+    console.log(`Good contract address: ${good.address}`)
 
-    const setGreetingTx = await greeter.setGreeting("Hola, mundo!");
+    // Deploy attack contract
+    const Attack = await ethers.getContractFactory("Attack")
+    const attack = await Attack.connect(addr1).deploy(good.address)
+    await attack.deployed()
+    console.log(`Attack contract address is: ${attack.address}`)
 
-    // wait until the transaction is mined
-    await setGreetingTx.wait();
+    let tx = await attack.connect(addr1).attack()
+    await tx.wait()
 
-    expect(await greeter.greet()).to.equal("Hola, mundo!");
-  });
-});
+    //Confirm the new onwer of good contract is Attack contract
+    const goodOwner = await good.owner()
+
+    expect(goodOwner).equal(attack.address)
+
+
+
+  })
+})
