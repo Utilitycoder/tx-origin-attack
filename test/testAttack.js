@@ -1,6 +1,5 @@
 const { expect } = require("chai");
 const { ethers, waffle } = require("hardhat");
-const { BigNumber } = require("ethers")
 
 describe("Test Attack", async () => {
   it("Should change the owner of good contract", async () => {
@@ -19,6 +18,7 @@ describe("Test Attack", async () => {
     await attack.deployed()
     console.log(`Attack contract address is: ${attack.address}`)
 
+    // Let's attack and change ownership
     let tx = await attack.connect(addr1).attack()
     await tx.wait()
 
